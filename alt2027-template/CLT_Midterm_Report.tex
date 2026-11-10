@@ -16,6 +16,8 @@ A playable generated Mario level may resemble a training level. We ask how often
 \end{abstract}
 \begin{keywords}Track D, theory of modern AI; implementation-based study; memorization, level generation\end{keywords}
 \section{Introduction}
+\citet{zhong} identifies gaps in evaluating generated game content (Section 4.3). Our copy-rate study addresses one part of that broader evaluation problem.
+
 Our proposal compares MarioGPT \citep{mariogpt}, a DistilGPT2-based tile generator, with the attention-equipped U-Net diffusion generator of \citet{diffusion}. Both evaluate playability with an A* agent. MarioGPT already examines memorization in Section 4.3 through nearest-training examples and sampling temperature. We extend that question with a quantitative copy threshold and a matched training-set-size sweep.
 
 Our hypothesis is that more than half the outputs are near-copies at three training levels, and that copying falls as data increases. This tests overfitting behavior rather than proving a generalization bound.
@@ -95,8 +97,9 @@ Sujal used AI to understand how MarioGPT learns by predicting the next tile in a
 
 Jackson used AI to understand how a diffusion model adds noise to levels step by step and learns to predict and remove it, including the math of the noise schedule and the training loss. He also used it to learn how generation runs that process in reverse over 100 steps, why turning tiles into one-hot vectors and rounding back is an approximation, and how to frame the playability check as a path search problem.
 
-\begin{thebibliography}{2}
+\begin{thebibliography}{3}
 \bibitem[Sudhakaran et~al.(2023)]{mariogpt} S. Sudhakaran, M. Gonz\'alez-Duque, M. Freiberger, C. Glanois, E. Najarro, and S. Risi. MarioGPT: Open-Ended Text2Level Generation through Large Language Models. \emph{NeurIPS}, 2023.
 \bibitem[Lee and Simo-Serra(2023)]{diffusion} H. J. Lee and E. Simo-Serra. Using Unconditional Diffusion Models in Level Generation for Super Mario Bros. \emph{MVA}, 2023.
+\bibitem[Zhong(2025)]{zhong} Chenhui Zhong. A Comprehensive Review of Transformer and Diffusion Models in Game Design: Applications, Challenges, and Future Directions. In \emph{Proceedings of the 5th International Conference on Signal Processing and Machine Learning}, pages 135--141, 2025. DOI: \url{https://doi.org/10.54254/2755-2721/133/2025.20611}.
 \end{thebibliography}
 \end{document}
