@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+vglc/
+distilgpt2/
+env/
+*.pt
+*.safetensors
+*.log
+*.aux
+*.out
+transfer.py
+pilot-results/
