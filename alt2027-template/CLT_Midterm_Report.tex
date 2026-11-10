@@ -91,9 +91,9 @@ Transformer: mean reachability 37.4\% before filtering and 35.4\% after; exact-c
 \paragraph{AI usage.}
 \textbf{Used Claude Opus 5.5}
 
-Jackson used AI to understand how MarioGPT learns by predicting the next tile in a sequence, and why that training goal tends to reward copying. He also used it to learn how the temperature setting changes how random or copy-like the output is, and how to compute the copy metric efficiently (counting mismatched tiles against every training slice, with 11 of 224 as the near-copy cutoff). Finally, he used it to check that the statistics are right: averaging over 5 training runs, and why the 1,000 slices from one model aren't independent samples.
+Sujal used AI to understand how MarioGPT learns by predicting the next tile in a sequence, and why that training goal tends to reward copying. He also used it to learn how the temperature setting changes how random or copy-like the output is, and how to compute the copy metric efficiently (counting mismatched tiles against every training slice, with 11 of 224 as the near-copy cutoff). Finally, he used it to check that the statistics are right: averaging over 5 training runs, and why the 1,000 slices from one model aren't independent samples.
 
-Sujal used AI to understand how a diffusion model adds noise to levels step by step and learns to predict and remove it, including the math of the noise schedule and the training loss. He also used it to learn how generation runs that process in reverse over 100 steps, why turning tiles into one-hot vectors and rounding back is an approximation, and how to frame the playability check as a path search problem.
+Jackson used AI to understand how a diffusion model adds noise to levels step by step and learns to predict and remove it, including the math of the noise schedule and the training loss. He also used it to learn how generation runs that process in reverse over 100 steps, why turning tiles into one-hot vectors and rounding back is an approximation, and how to frame the playability check as a path search problem.
 
 \begin{thebibliography}{2}
 \bibitem[Sudhakaran et~al.(2023)]{mariogpt} S. Sudhakaran, M. Gonz\'alez-Duque, M. Freiberger, C. Glanois, E. Najarro, and S. Risi. MarioGPT: Open-Ended Text2Level Generation through Large Language Models. \emph{NeurIPS}, 2023.
