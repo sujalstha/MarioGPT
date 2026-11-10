@@ -67,7 +67,34 @@ Transformer: mean reachability 37.4\% before filtering and 35.4\% after; exact-c
 \end{itemize}
 
 \section{What Each of Us Has Done}
-\textbf{Sujal Shrestha:} Supplied the team proposal and directed scope and compute budget. \textbf{Jackson McKay:} No completed individual technical contribution was reported. \textbf{AI assistance:} Codex implemented and ran experiments, generated figures, and drafted this report. Both students still need to review the code, results, and paper connections.
+\noindent\begin{minipage}[t]{.48\linewidth}\small
+\textbf{Sujal (Transformer half)}
+\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{3pt}\setlength{\leftmargini}{12pt}
+\item Read MarioGPT and summarize its model, data and evaluation.
+\item Build the DistilGPT2 tile generator and run its 25 models (5 dataset sizes $\times$ 5 seeds).
+\item Write the copy-rate metric (nearest-neighbor Hamming distance) and compute the held-out baseline.
+\item Make Table 1 and Figure 2 (the closest generated/training pairs).
+\item Write the Introduction, the Transformer part of Setup, and Experiment Set 1.
+\end{itemize}
+
+\end{minipage}\hfill\begin{minipage}[t]{.48\linewidth}\small
+\textbf{Jackson (diffusion half)}
+\begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{3pt}\setlength{\leftmargini}{12pt}
+\item Read the diffusion paper and summarize it.
+\item Build the U-Net DDPM and run its 25 models.
+\item Prepare the VGLC data: download, hold out 5 levels, cut slices, make the nested training subsets.
+\item Write the reachability check and the filtering experiment.
+\item Make Figure 1 (copy rate, distance and reachability plots).
+\item Write the diffusion part of Setup, Experiment Set 2, and Difficulties.
+\end{itemize}
+\end{minipage}
+
+\paragraph{AI usage.}
+\textbf{Used Claude Opus 5.5}
+
+Jackson used AI to understand how MarioGPT learns by predicting the next tile in a sequence, and why that training goal tends to reward copying. He also used it to learn how the temperature setting changes how random or copy-like the output is, and how to compute the copy metric efficiently (counting mismatched tiles against every training slice, with 11 of 224 as the near-copy cutoff). Finally, he used it to check that the statistics are right: averaging over 5 training runs, and why the 1,000 slices from one model aren't independent samples.
+
+Sujal used AI to understand how a diffusion model adds noise to levels step by step and learns to predict and remove it, including the math of the noise schedule and the training loss. He also used it to learn how generation runs that process in reverse over 100 steps, why turning tiles into one-hot vectors and rounding back is an approximation, and how to frame the playability check as a path search problem.
 
 \begin{thebibliography}{2}
 \bibitem[Sudhakaran et~al.(2023)]{mariogpt} S. Sudhakaran, M. Gonz\'alez-Duque, M. Freiberger, C. Glanois, E. Najarro, and S. Risi. MarioGPT: Open-Ended Text2Level Generation through Large Language Models. \emph{NeurIPS}, 2023.
