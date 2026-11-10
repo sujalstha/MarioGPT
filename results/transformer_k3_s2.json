@@ -1,0 +1,21 @@
+{
+  "architecture": "transformer",
+  "k": 3,
+  "seed": 2,
+  "updates": 300,
+  "target_updates": 300,
+  "parameters": 43325952,
+  "samples": 1000,
+  "copy_rate": 0.354,
+  "exact_rate": 0.0,
+  "heldout_copy_rate": 0.22502870264064295,
+  "mean_distance": 21.573,
+  "final_loss": 0.1988082230091095,
+  "seconds": 32.09900601860136,
+  "training_levels": [
+    "mario-4-2.txt",
+    "SuperMarioBros2(J)-World3-3.txt",
+    "SuperMarioBros2(J)-World4-3.txt"
+  ],
+  "status": "complete"
+}

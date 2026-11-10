@@ -1,0 +1,33 @@
+{
+  "architecture": "transformer",
+  "k": 15,
+  "seed": 4,
+  "updates": 300,
+  "target_updates": 300,
+  "parameters": 43325952,
+  "samples": 1000,
+  "copy_rate": 0.375,
+  "exact_rate": 0.012,
+  "heldout_copy_rate": 0.40298507462686567,
+  "mean_distance": 18.323,
+  "final_loss": 0.3065063953399658,
+  "seconds": 33.205045186914504,
+  "training_levels": [
+    "SuperMarioBros2(J)-WorldA-1.txt",
+    "mario-5-3.txt",
+    "mario-3-1.txt",
+    "mario-2-1.txt",
+    "SuperMarioBros2(J)-World4-1.txt",
+    "SuperMarioBros2(J)-World6-3.txt",
+    "SuperMarioBros2(J)-World4-3.txt",
+    "SuperMarioBros2(J)-World3-3.txt",
+    "SuperMarioBros2(J)-WorldD-1.txt",
+    "SuperMarioBros2(J)-World5-1.txt",
+    "SuperMarioBros2(J)-World1-2.txt",
+    "mario-6-3.txt",
+    "SuperMarioBros2(J)-WorldA-3.txt",
+    "mario-4-2.txt",
+    "mario-1-2.txt"
+  ],
+  "status": "complete"
+}

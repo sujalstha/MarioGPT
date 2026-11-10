@@ -24,7 +24,7 @@ The reachability proxy searches landing positions supported by solid tiles and d
 
 ## Resource and assistance record
 
-The user authorized at most 45 allocated GPU-minutes, with one GPU at a time. Initial pilot job `35873371` completed in 1:36. It used only base-game levels and exposed a start-token attention-mask warning; its results are excluded from the main analysis. Main job `35873430` has a 30-minute hard limit. Thus these two jobs cannot exceed 31:36 allocated GPU-minutes. Setup/downloads use no GPU allocation.
+The user authorized at most 45 allocated GPU-minutes, with one GPU at a time. The pilot (`35873371`, 96 seconds) used base-game levels and is excluded from analysis. Height validation failed before training in `35873430` (20 seconds); `35873493` was cancelled while queued (zero seconds) to correct the diffusion schedule. Main job `35873514` completed all 50 models and 50,000 outputs in 916 seconds. **Total allocated GPU time: 1,032 seconds = 17 minutes 12 seconds.** See `resources.tsv`. Setup/downloads used no GPU allocation. The GPU was an NVIDIA RTX 6000 Ada Generation. DistilGPT2 is pinned to revision `2290a62682d06624634c1f46a6ad5be0f47f38aa` in `prepare.sh`.
 
 Codex prepared and executed the code, analysis, figures, and report at Sujal's direction. Individual student technical contributions have not been reported and must not be inferred from authorship. The students must review the artifacts and complete the required 15-minute meeting with Dr. Cao. The repository is private; `mlciv` has been invited as a collaborator.
 

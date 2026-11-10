@@ -5,16 +5,24 @@ rows=json.loads((root/'results/summary.json').read_text())
 manifest=json.loads((root/'results/manifest.json').read_text())
 assert len(rows)==50 and all(r['status']=='complete' for r in rows)
 table=[]
-for arch in ['transformer','diffusion']:
- for k in [3,6,9,12,15]:
+for k in [3,6,9,12,15]:
+ def cell(arch,key):
   rs=[r for r in rows if r['architecture']==arch and r['k']==k];assert len(rs)==5
-  def cell(key,scale=100):
-   x=np.array([r[key] for r in rs])*scale
-   return f'{x.mean():.1f} $\\pm$ {x.std(ddof=1):.1f}'
-  table.append(f'{arch.title()} & {k} & {cell("copy_rate")} & {cell("heldout_copy_rate")} & {cell("reachability")} \\\\')
+  x=np.array([r[key] for r in rs])*100
+  return f'{x.mean():.1f} $\\pm$ {x.std(ddof=1):.1f}'
+ table.append(f'{k} & {cell("transformer","copy_rate")} & {cell("diffusion","copy_rate")} & {cell("transformer","heldout_copy_rate")} \\\\')
 k3={a:np.mean([r['copy_rate'] for r in rows if r['architecture']==a and r['k']==3])*100 for a in ['transformer','diffusion']}
-body=r'''\documentclass[final]{alt2027}
+filter_text=[]
+for arch in ['transformer','diffusion']:
+ rs=[r for r in rows if r['architecture']==arch]
+ before=np.mean([r['reachability'] for r in rs])*100
+ after=np.mean([r['noncopy_reachability'] for r in rs if r['noncopy_reachability'] is not None])*100
+ exact=np.mean([r['exact_rate'] for r in rs])*100
+ filter_text.append(f'{arch.title()}: mean reachability {before:.1f}\\% before filtering and {after:.1f}\\% after; exact-copy rate {exact:.1f}\\%.')
+body=r'''\documentclass{alt2027}
+\jmlrworkshop{38th International Conference on Algorithmic Learning Theory}
 \usepackage{times,booktabs}
+\hypersetup{hidelinks}
 \title[Mario Level Memorization]{Midterm Progress Report (Track D, implementation-based):\\Do Generative Level Models Copy Their Training Data?}
 \altauthor{\Name{Sujal Shrestha} \Email{sujalshrestha@ou.edu}\\
 \Name{Jackson McKay} \Email{jackson.j.mckay-1@ou.edu}\\
@@ -27,22 +35,22 @@ A playable generated Mario level may resemble a training level. We ask how often
 \end{abstract}
 \begin{keywords}Track D, theory of modern AI; implementation-based study; memorization, level generation\end{keywords}
 \section{Introduction}
-Our original proposal compares MarioGPT \citep{mariogpt} with unconditional diffusion level generation \citep{diffusion}. MarioGPT fine-tunes a DistilGPT2-based model on tile sequences, uses cross-attention for prompts, and evaluates generated levels with an A* agent. Importantly, its Section 4.3 already examines memorization through nearest-training examples and sampling temperature. Lee and Simo-Serra use a U-Net diffusion model with attention and one-hot tile representations. Our contribution is a matched, quantitative training-set-size sweep using a fixed near-copy threshold, not the first observation that level generators can copy.
+Our proposal compares MarioGPT \citep{mariogpt}, a DistilGPT2-based tile generator, with the attention-equipped U-Net diffusion generator of \citet{diffusion}. Both evaluate playability with an A* agent. MarioGPT already examines memorization in Section 4.3 through nearest-training examples and sampling temperature. We extend that question with a quantitative copy threshold and a matched training-set-size sweep.
 
-We test the proposal's hypothesis that more than half the generated slices are near-copies at three training levels and that the rate falls as data increases. The course connection is overfitting: fitting a tiny corpus need not imply useful generalization. Our experiments measure a behavior; they do not prove a generalization bound.
+Our hypothesis is that more than half the outputs are near-copies at three training levels, and that copying falls as data increases. This tests overfitting behavior rather than proving a generalization bound.
 
 \section{Implementation and Results}
-\textbf{Setup.} We use NUMLEVELS VGLC maps from Super Mario Bros. and The Lost Levels, with a fixed five-level holdout selected before slicing. Maps are ground-aligned to 14 rows by cropping or padding above. We extract $14\times16$ slices with stride 1. For each of five seeds, one random level ordering gives nested subsets $k\in\{3,6,9,12,15\}$, shared by both architectures. The resulting $2\times5\times5=50$ trained models produce 50,000 slices. Exact level IDs, losses, outputs, and settings are saved in the private repository; \texttt{mlciv} has been invited.
+\textbf{Setup.} We use NUMLEVELS VGLC maps from Super Mario Bros. and The Lost Levels. Five whole levels are held out before extracting $14\times16$ slices (stride 1); maps are ground-aligned by cropping or padding above. Five seeds give nested subsets $k\in\{3,6,9,12,15\}$ shared by both architectures. Each of the $2\times5\times5=50$ models generates 1,000 slices. The private repository records data IDs, settings, outputs, and losses; \texttt{mlciv} has been invited.
 
-Our Transformer retains pretrained DistilGPT2 blocks but replaces the language vocabulary with tile IDs and a start token. It omits text prompts and novelty search. We train 300 updates with batch 16 and AdamW (learning rate $5\times10^{-5}$, no weight decay), then sample at temperature 1 without top-$k$ truncation. Our small U-Net uses 32/64/32 channels, one downsampling stage, a skip connection, and a scalar time channel. It trains for 1,500 updates with batch 16 and Adam ($10^{-3}$), predicting noise over 100 linear-beta DDPM steps; tiles are decoded by argmax. It omits the diffusion paper's attention, and uses our proposal's $14\times16$ format rather than that paper's $14\times14$. Training budgets are equal across dataset sizes within each architecture, not across architectures.
+The Transformer retains pretrained DistilGPT2 blocks with a tile vocabulary, omitting prompts and novelty search. It trains 300 updates with AdamW ($5\times10^{-5}$, zero weight decay), sampling at temperature 1 without top-$k$ truncation. Our 32/64/32-channel U-Net omits attention, training 1,500 updates with Adam ($10^{-3}$) on noise-prediction MSE. It uses 100 linear-beta DDPM steps ($10^{-4}$ to $0.1$) and argmax decoding. Both use batch 16. These are small adaptations; the diffusion paper uses $14\times14$ slices. Budgets are fixed across dataset sizes within each architecture.
 
-\textbf{Experiment Set 1: copying.} For each output $x$, we find its exact nearest training slice under tilewise Hamming distance, $d_{\min}(x)=\min_{s\in S}\sum_{i=1}^{224}\mathbf1[x_i\ne s_i]$. The copy rate is the fraction with $d_{\min}\le11$ (at most 5\% of tiles). We also save exact-copy rates and distances. Table~\ref{tab:results} and Figure~\ref{fig:metrics} report the completed grid. A larger corpus supplies more possible matches, so we evaluate real held-out slices against each training subset as a reference. The five training runs are the repeats; the 1,000 outputs within a run are not independent training experiments.
+\textbf{Experiment Set 1: copying.} We compute exact nearest-training Hamming distance, $d_{\min}(x)=\min_{s\in S}\sum_{i=1}^{224}\mathbf1[x_i\ne s_i]$. Near-copies have $d_{\min}\le11$ (at most 5\% of tiles); exact copies have distance zero. Table~\ref{tab:results} and Figure~\ref{fig:metrics} show results across five training runs per setting. Held-out real slices provide a baseline because larger training corpora offer more possible matches. Generated outputs are not independent training repeats.
 
 \begin{table}[t]
 \centering\small
-\caption{Mean $\pm$ sample standard deviation over five seeds. Rates are percentages. Reachability is a local proxy, not an A* score.}\label{tab:results}
-\begin{tabular}{lrrrr}\toprule
-Model & Levels & Near-copy & Held-out near-copy & Reachable\\\midrule
+\caption{Near-copy rate (\%): mean $\pm$ sample standard deviation over five seeds. The held-out baseline is shared by both architectures.}\label{tab:results}
+\begin{tabular}{rrrr}\toprule
+Training levels & Transformer & Diffusion & Held-out real slices\\\midrule
 TABLEROWS
 \bottomrule\end{tabular}
 \end{table}
@@ -52,37 +60,37 @@ TABLEROWS
 \caption{Copy rate, nearest-training distance, and local reachability versus training-set size. Error bars show sample standard deviation over five seeds. The dashed curve is the held-out real-level baseline.}\label{fig:metrics}
 \end{figure}
 
-\textbf{Experiment Set 2: reachability after filtering.} We search supported landing positions connected by discretized jump arcs up to four tiles horizontally, with heights 1--4. Enemies block the path; empty space and coins are passable. This point-agent check tests left-to-right traversal of a slice with approximate collisions. We recompute it on outputs with $d_{\min}>11$ and save conditional rates and counts. It does not reproduce Mario's physics or establish full-level playability. Figure~\ref{fig:examples} shows the closest and median-distance outputs at $k=3$, seed 0, beside their nearest training slices; this selection is deterministic.
+\textbf{Experiment Set 2: filtering.} A point-agent search tests left-to-right reachability using supported landing positions and approximate jump arcs (horizontal range and height up to four tiles). Enemies block traversal. We repeat the check on non-copied outputs. This is a local proxy, not Mario physics or full-level A* playability. Figure~\ref{fig:examples} shows minimum-distance outputs at $k=3$, seed 0.
 
 \begin{figure}[t]\centering
 \includegraphics[width=.88\linewidth]{../figures/examples.pdf}
-\caption{Tile-coded generated slices and nearest training matches. Each row shows the minimum-distance and median-distance examples for one model. Colors consistently identify tile categories; these are data visualizations, not game screenshots.}\label{fig:examples}
+\caption{Closest generated/training pairs ($k=3$, seed 0). Blue is empty space; pink is solid X blocks. Common ground-and-sky patterns can match exactly.}\label{fig:examples}
 \end{figure}
 
-The three-level rates are compared with our predeclared 50\% hypothesis, but undertraining is an alternative explanation for low copying. We therefore do not interpret novelty as proof that either architecture learned playable structures. Differences also reflect model capacity and optimization budgets, so this is not a ranking of the published methods.
+FILTERRESULT Means weight the 25 runs equally. Both three-level mean copy rates are below our hypothesized 50\%, and neither curve decreases monotonically. Short training and unequal capacities limit interpretation: low copying does not establish useful generalization.
 
 \section{Difficulties So Far}
 \begin{itemize}\setlength{\itemsep}{0pt}
-\item \textbf{Small corpus and inconsistent heights.} Base-game data alone contains only 15 maps. Adding Lost Levels supports the full grid plus held-out evaluation, but requires explicit height normalization. A validation failure caught this before main training.
-\item \textbf{Short training and generation setup.} We imposed a 45-GPU-minute cap, used fixed update budgets, and corrected an attention-mask warning in the pilot. Pilot results are excluded. Neither model is claimed to have converged.
-\item \textbf{Metric interpretation.} Common empty-space and ground patterns can cause matches in unseen levels. Our reachability proxy is also coarse. Boundary tests at 0, 11, and 12 changed tiles and simple traversable/blocked cases passed; saved distances are recomputed for verification.
+\item \textbf{Data:} Lost Levels supplements the 15-map base corpus; mixed heights require normalization.
+\item \textbf{Compute:} The workflow used 17:12 GPU-minutes (cap: 45). These short runs do not establish convergence.
+\item \textbf{Evaluation:} Common patterns inflate matches. Hamming boundary and simple reachability tests passed; all saved distances were recomputed.
 \end{itemize}
 
 \section{Plan for the Rest of the Semester}
 \begin{itemize}\setlength{\itemsep}{0pt}
-\item \textbf{Nov. 10--25:} Increase training budgets after approval, inspect loss convergence, test sampling temperatures, and improve the playability evaluation while keeping the same copy metric and matched data splits.
-\item \textbf{Nov. 26--Dec. 7:} Analyze copying versus training exposure and model size, inspect examples, and connect findings to overfitting and Occam's principle.
-\item \textbf{Dec. 8/10 and Dec. 14:} Present the project, then submit the final report and code. Before then, meet Dr. Cao for the required 15-minute progress discussion; this meeting is not yet completed.
+\item \textbf{Nov. 10--25:} Check convergence with longer training, vary sampling temperature, and improve playability evaluation on the same splits.
+\item \textbf{Nov. 26--Dec. 7:} Relate copying to training exposure, capacity, and overfitting.
+\item \textbf{Dec. 8/10; Dec. 14:} Present, then submit the final report and code. The required 15-minute meeting with Dr. Cao remains to be scheduled and completed.
 \end{itemize}
 
 \section{What Each of Us Has Done}
-\textbf{Sujal Shrestha:} Supplied the original team proposal, selected the Mario topic and report reference, and set the compute limit. \textbf{Jackson McKay:} No completed individual technical contribution was reported at drafting time. \textbf{Assistance:} Codex implemented and ran the experiments, produced figures, and drafted this report at Sujal's direction. Both students still need to review and understand the code, results, and paper connections before submission; implementation work is not attributed to them without verification.
+\textbf{Sujal Shrestha:} Supplied the team proposal and directed scope and compute budget. \textbf{Jackson McKay:} No completed individual technical contribution was reported. \textbf{AI assistance:} Codex implemented and ran experiments, generated figures, and drafted this report. Both students still need to review the code, results, and paper connections.
 
 \begin{thebibliography}{2}
-\bibitem[Sudhakaran et~al.(2023)]{mariogpt} S. Sudhakaran, M. Gonz\'alez-Duque, C. Glanois, M. Freiberger, E. Najarro, and S. Risi. MarioGPT: Open-Ended Text2Level Generation through Large Language Models. \emph{NeurIPS}, 2023.
+\bibitem[Sudhakaran et~al.(2023)]{mariogpt} S. Sudhakaran, M. Gonz\'alez-Duque, M. Freiberger, C. Glanois, E. Najarro, and S. Risi. MarioGPT: Open-Ended Text2Level Generation through Large Language Models. \emph{NeurIPS}, 2023.
 \bibitem[Lee and Simo-Serra(2023)]{diffusion} H. J. Lee and E. Simo-Serra. Using Unconditional Diffusion Models in Level Generation for Super Mario Bros. \emph{MVA}, 2023.
 \end{thebibliography}
 \end{document}
 '''
-body=body.replace('TRANSRATE',f'{k3["transformer"]:.1f}').replace('DIFFRATE',f'{k3["diffusion"]:.1f}').replace('NUMLEVELS',str(len(manifest['files']))).replace('TABLEROWS','\n'.join(table))
+body=body.replace('TRANSRATE',f'{k3["transformer"]:.1f}').replace('DIFFRATE',f'{k3["diffusion"]:.1f}').replace('NUMLEVELS',str(len(manifest['files']))).replace('TABLEROWS','\n'.join(table)).replace('FILTERRESULT',' '.join(filter_text))
 (root/'alt2027-template/CLT_Midterm_Report.tex').write_text(body)

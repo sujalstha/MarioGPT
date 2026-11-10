@@ -49,7 +49,7 @@ def main():
   records.append(r)
  (res/'summary.json').write_text(json.dumps(records,indent=2))
  plt.rcParams.update({'font.size':9,'pdf.fonttype':42})
- fig1,axes=plt.subplots(1,3,figsize=(9,2.3))
+ fig1,axes=plt.subplots(1,3,figsize=(7.2,2.35))
  for arch,color in [('transformer','#2469a1'),('diffusion','#d66b27')]:
   rows=[r for r in records if r['architecture']==arch];ks=sorted({r['k'] for r in rows})
   for ax,key in zip(axes,['copy_rate','mean_distance','reachability']):
@@ -61,14 +61,15 @@ def main():
    axes[0].plot(ks,[100*np.mean(g) for g in groups],'--',color='gray',label='Held-out levels')
  for ax,label in zip(axes,['Near-copy rate (%)','Mean nearest distance (tiles)','Reachability proxy (%)']):
   ax.set_xlabel('Training levels');ax.set_ylabel(label);ax.set_xticks([3,6,9,12,15]);ax.grid(alpha=.2)
+ axes[0].set_ylim(0,100);axes[2].set_ylim(0,100);axes[1].set_ylim(bottom=0)
  axes[0].legend(fontsize=7);fig1.tight_layout();fig1.savefig(fig/'metrics.pdf');plt.close(fig1)
- fig2,axs=plt.subplots(2,4,figsize=(8,2.9));cmap=ListedColormap(plt.cm.tab20(np.linspace(0,1,len(vocab))))
+ fig2,axs=plt.subplots(1,4,figsize=(8,1.7));cmap=ListedColormap(plt.cm.tab20(np.linspace(0,1,len(vocab))))
  for row,arch in enumerate(['transformer','diffusion']):
-  z=np.load(res/f'{arch}_k3_s0.npz');d=z['distances'];idxs=[int(d.argmin()),int(np.argsort(d)[len(d)//2])]
+  z=np.load(res/f'{arch}_k3_s0.npz');d=z['distances'];idxs=[int(d.argmin())]
   for pair,idx in enumerate(idxs):
    sample=z['generated'][idx];train=z['train'];j=np.count_nonzero(train!=sample,axis=(1,2)).argmin()
    for col,a,title in [(pair*2,sample,f'{arch.title()}: d={d[idx]}'),(pair*2+1,train[j],'Nearest training slice')]:
-    axs[row,col].imshow(a,cmap=cmap,vmin=0,vmax=len(vocab)-1,interpolation='nearest');axs[row,col].set_title(title,fontsize=8);axs[row,col].axis('off')
+    ax=axs[row*2+col];ax.imshow(a,cmap=cmap,vmin=0,vmax=len(vocab)-1,interpolation='nearest');ax.set_title(title,fontsize=8);ax.axis('off')
  fig2.tight_layout();fig2.savefig(fig/'examples.pdf');plt.close(fig2)
  print(json.dumps(records,indent=2))
 if __name__=='__main__':main()
