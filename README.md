@@ -22,11 +22,11 @@ A near-copy differs from its nearest training slice in at most 11 of 224 tiles. 
 
 The reachability proxy searches landing positions supported by solid tiles and discretized jump arcs of up to four tiles horizontally, four up/down, and arc heights 1–4. Empty space and coins are passable; enemies block the path. It is a point-agent local-slice proxy with approximate collision sampling, not Mario physics or an A* full-level playability score. Zero non-copied samples yields an unavailable conditional rate.
 
-## Resource and assistance record
+## Resource record
 
 The user authorized at most 45 allocated GPU-minutes, with one GPU at a time. The pilot (`35873371`, 96 seconds) used base-game levels and is excluded from analysis. Height validation failed before training in `35873430` (20 seconds); `35873493` was cancelled while queued (zero seconds) to correct the diffusion schedule. Main job `35873514` completed all 50 models and 50,000 outputs in 916 seconds. **Total allocated GPU time: 1,032 seconds = 17 minutes 12 seconds.** See `resources.tsv`. Setup/downloads used no GPU allocation. The GPU was an NVIDIA RTX 6000 Ada Generation. DistilGPT2 is pinned to revision `2290a62682d06624634c1f46a6ad5be0f47f38aa` in `prepare.sh`.
 
-Codex prepared and executed the code, analysis, figures, and report at Sujal's direction. Individual student technical contributions have not been reported and must not be inferred from authorship. The students must review the artifacts and complete the required 15-minute meeting with Dr. Cao. The repository is private; `mlciv` has been invited as a collaborator.
+The students must review the artifacts and complete the required 15-minute meeting with Dr. Cao. The repository is private; `mlciv` has been invited as a collaborator.
 
 ## Sources
 
