@@ -10,3 +10,5 @@
 - No evidence of convergence is claimed. Short budgets, different capacities, common patterns, approximate reachability, and fixed-update exposure differences limit interpretation.
 - The private GitHub repository is sujalstha/MarioGPT. Invitation to mlciv was sent with the supported personal-repository collaborator permission; acceptance was pending at verification.
 - Student review and the required meeting with Dr. Cao remain outstanding.
+
+- Font/layout correction: compared embedded PDF fonts and extracted text sizes against Thomas's reference. Both use NimbusRomNo9L for body/title/headings at matching sizes. Explicit 11pt class and T1 font encoding correct the prior Latin Modern fallback. Current report remains four pages.

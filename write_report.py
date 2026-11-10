@@ -19,10 +19,12 @@ for arch in ['transformer','diffusion']:
  after=np.mean([r['noncopy_reachability'] for r in rs if r['noncopy_reachability'] is not None])*100
  exact=np.mean([r['exact_rate'] for r in rs])*100
  filter_text.append(f'{arch.title()}: mean reachability {before:.1f}\\% before filtering and {after:.1f}\\% after; exact-copy rate {exact:.1f}\\%.')
-body=r'''\documentclass{alt2027}
+body=r'''\documentclass[11pt]{alt2027}
 \jmlrworkshop{38th International Conference on Algorithmic Learning Theory}
+\usepackage[T1]{fontenc}
 \usepackage{times,booktabs}
 \hypersetup{hidelinks}
+\urlstyle{same}
 \title[Mario Level Memorization]{Midterm Progress Report (Track D, implementation-based):\\Do Generative Level Models Copy Their Training Data?}
 \altauthor{\Name{Sujal Shrestha} \Email{sujalshrestha@ou.edu}\\
 \Name{Jackson McKay} \Email{jackson.j.mckay-1@ou.edu}\\
@@ -84,7 +86,6 @@ FILTERRESULT Means weight the 25 runs equally. Both three-level mean copy rates 
 \end{itemize}
 
 \section{What Each of Us Has Done}
-\noindent\begin{minipage}[t]{.48\linewidth}\small
 \textbf{Sujal (Transformer half)}
 \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{3pt}\setlength{\leftmargini}{12pt}
 \item Read MarioGPT and summarize its model, data and evaluation.
@@ -94,7 +95,6 @@ FILTERRESULT Means weight the 25 runs equally. Both three-level mean copy rates 
 \item Write the Introduction, the Transformer part of Setup, and Experiment Set 1.
 \end{itemize}
 
-\end{minipage}\hfill\begin{minipage}[t]{.48\linewidth}\small
 \textbf{Jackson (diffusion half)}
 \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{3pt}\setlength{\leftmargini}{12pt}
 \item Read the diffusion paper and summarize it.
@@ -104,7 +104,6 @@ FILTERRESULT Means weight the 25 runs equally. Both three-level mean copy rates 
 \item Make Figure 1 (copy rate, distance and reachability plots).
 \item Write the diffusion part of Setup, Experiment Set 2, and Difficulties.
 \end{itemize}
-\end{minipage}
 
 \paragraph{AI usage.}
 \textbf{Used Claude Opus 5.5}

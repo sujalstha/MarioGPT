@@ -1,7 +1,9 @@
-\documentclass{alt2027}
+\documentclass[11pt]{alt2027}
 \jmlrworkshop{38th International Conference on Algorithmic Learning Theory}
+\usepackage[T1]{fontenc}
 \usepackage{times,booktabs}
 \hypersetup{hidelinks}
+\urlstyle{same}
 \title[Mario Level Memorization]{Midterm Progress Report (Track D, implementation-based):\\Do Generative Level Models Copy Their Training Data?}
 \altauthor{\Name{Sujal Shrestha} \Email{sujalshrestha@ou.edu}\\
 \Name{Jackson McKay} \Email{jackson.j.mckay-1@ou.edu}\\
@@ -67,7 +69,6 @@ Transformer: mean reachability 37.4\% before filtering and 35.4\% after; exact-c
 \end{itemize}
 
 \section{What Each of Us Has Done}
-\noindent\begin{minipage}[t]{.48\linewidth}\small
 \textbf{Sujal (Transformer half)}
 \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{3pt}\setlength{\leftmargini}{12pt}
 \item Read MarioGPT and summarize its model, data and evaluation.
@@ -77,7 +78,6 @@ Transformer: mean reachability 37.4\% before filtering and 35.4\% after; exact-c
 \item Write the Introduction, the Transformer part of Setup, and Experiment Set 1.
 \end{itemize}
 
-\end{minipage}\hfill\begin{minipage}[t]{.48\linewidth}\small
 \textbf{Jackson (diffusion half)}
 \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}\setlength{\topsep}{3pt}\setlength{\leftmargini}{12pt}
 \item Read the diffusion paper and summarize it.
@@ -87,7 +87,6 @@ Transformer: mean reachability 37.4\% before filtering and 35.4\% after; exact-c
 \item Make Figure 1 (copy rate, distance and reachability plots).
 \item Write the diffusion part of Setup, Experiment Set 2, and Difficulties.
 \end{itemize}
-\end{minipage}
 
 \paragraph{AI usage.}
 \textbf{Used Claude Opus 5.5}
