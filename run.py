@@ -22,13 +22,16 @@ def main():
  torch.set_num_threads(4);assert torch.cuda.is_available()
  root=Path(__file__).parent;out=root/'results';out.mkdir(exist_ok=True)
  files=sorted((root/'data').glob('*.txt'));assert len(files)>=18
- levels=[f.read_text().splitlines() for f in files];assert all(len(l)==14 for l in levels)
+ raw_levels=[f.read_text().splitlines() for f in files]
+ assert all(len(set(map(len,l)))==1 for l in raw_levels)
+ # Ground-align: retain bottom 14 rows, pad short maps with empty sky above.
+ levels=[(['-'*len(l[0])]*max(0,14-len(l))+l)[-14:] for l in raw_levels]
  vocab=sorted(set(''.join(''.join(l) for l in levels)));v=len(vocab);enc={c:i for i,c in enumerate(vocab)}
  slices=[np.array([[enc[c] for c in row] for row in l],dtype=np.int64) for l in levels]
  slices=[np.stack([a[:,j:j+16] for j in range(a.shape[1]-15)]) for a in slices]
  split=np.random.default_rng(2026).permutation(len(files));held_ids=split[:5];train_ids=split[5:];assert len(train_ids)>=15
  held=np.concatenate([slices[i] for i in held_ids]);pool=[slices[i] for i in train_ids]
- (out/'manifest.json').write_text(json.dumps(dict(files=[f.name for f in files],heldout=[files[i].name for i in held_ids],vocab=vocab,gpu=torch.cuda.get_device_name(),torch=torch.__version__,vglc_revision='0e86a8f31f20ecad4eaa5741ff061af88767f7fb'),indent=2))
+ (out/'manifest.json').write_text(json.dumps(dict(files=[f.name for f in files],original_heights=[len(l) for l in raw_levels],normalization='bottom-align to 14 rows; top crop or empty-sky pad',heldout=[files[i].name for i in held_ids],vocab=vocab,gpu=torch.cuda.get_device_name(),torch=torch.__version__,vglc_revision='0e86a8f31f20ecad4eaa5741ff061af88767f7fb'),indent=2))
  schedule=[(a,k,s) for s in range(5) for k in [3,6,9,12,15] for a in ['transformer','diffusion']]
  for arch,k,seed in schedule:
   start=time.monotonic();random.seed(seed);np.random.seed(seed);torch.manual_seed(seed);torch.cuda.manual_seed_all(seed)
@@ -41,7 +44,9 @@ def main():
    bos=v;opt=torch.optim.AdamW(model.parameters(),lr=5e-5,weight_decay=0.)
   else:
    model=UNet(v).cuda();opt=torch.optim.Adam(model.parameters(),lr=1e-3)
-  beta=torch.linspace(.0001,.02,100,device='cuda');alpha=1-beta;abar=torch.cumprod(alpha,0)
+  # With only 100 steps, a .02 endpoint leaves substantial signal at t=T.
+  # Use .1 so alpha_bar[T] is near zero and the Gaussian sampling prior fits.
+  beta=torch.linspace(.0001,.1,100,device='cuda');alpha=1-beta;abar=torch.cumprod(alpha,0)
   model.train();steps=0
   # Equal updates within architecture across k; bound each run independently.
   target=300 if arch=='transformer' else 1500
